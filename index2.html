@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Consulta de CEP</title>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            padding: 40px;
+        }
+
+        .container {
+            width: 500px;
+            margin: auto;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.15);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .resultado {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9f5ff;
+            border-left: 5px solid #007bff;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .erro {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #ffe9e9;
+            border-left: 5px solid red;
+            color: red;
+            border-radius: 5px;
+            display: none;
+        }
+
+        p {
+            margin: 6px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Consulta de CEP</h2>
+
+        <label for="cep">Digite o CEP:</label>
+        <input type="text" id="cep" placeholder="Ex: 01001000">
+
+        <button id="btnPesquisar">Pesquisar</button>
+
+        <div class="resultado" id="resultado">
+            <h3>Dados do Endereço</h3>
+            <p><strong>CEP:</strong> <span id="resCep"></span></p>
+            <p><strong>Logradouro:</strong> <span id="resLogradouro"></span></p>
+            <p><strong>Bairro:</strong> <span id="resBairro"></span></p>
+            <p><strong>Cidade:</strong> <span id="resCidade"></span></p>
+            <p><strong>Estado:</strong> <span id="resEstado"></span></p>
+            <p><strong>DDD:</strong> <span id="resDDD"></span></p>
+        </div>
+
+        <div class="erro" id="erro">
+            CEP não encontrado ou inválido.
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+
+            $("#btnPesquisar").click(function () {
+
+                var cep = $("#cep").val();
+
+                cep = cep.replace(/\D/g, "");
+
+                $("#resultado").hide();
+                $("#erro").hide();
+
+                if (cep.length !== 8) {
+                    $("#erro").text("Digite um CEP válido com 8 números.").show();
+                    return;
+                }
+
+                $.ajax({
+                    url: "https://viacep.com.br/ws/" + cep + "/json/",
+                    type: "GET",
+                    dataType: "json",
+                    success: function (dados) {
+
+                        if (dados.erro) {
+                            $("#erro").text("CEP não encontrado.").show();
+                            return;
+                        }
+
+                        $("#resCep").text(dados.cep);
+                        $("#resLogradouro").text(dados.logradouro);
+                        $("#resBairro").text(dados.bairro);
+                        $("#resCidade").text(dados.localidade);
+                        $("#resEstado").text(dados.uf);
+                        $("#resDDD").text(dados.ddd);
+
+                        $("#resultado").show();
+                    },
+                    error: function () {
+                        $("#erro").text("Erro ao consultar o CEP. Tente novamente.").show();
+                    }
+                });
+
+            });
+
+        });
+    </script>
+
+</body>
+</html>
